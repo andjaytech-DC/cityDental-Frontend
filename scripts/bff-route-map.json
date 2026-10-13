@@ -1,0 +1,477 @@
+{
+  "description": "Next.js BFF -> NestJS-only migration registry. Single source of truth consumed by scripts/audit-bff.mjs. Every /app/api route handler, every Next.js server action and every server-side domain database read must appear here; the audit fails when a surface is missing, and fails again when an entry claims 'migrated' while the NestJS handler or the deletion is incomplete.",
+  "apiBase": "/api/v1",
+  "webRoot": "apps/web/src",
+  "nestRoot": "apps/api/src",
+  "globalPrefixSource": "apps/api/src/main.ts",
+  "phases": {
+    "1": {
+      "name": "Auth core (NestJS-owned session)",
+      "goal": "Move credential verification, JWT signing/verification, tokenVersion revocation, RBAC and the audit of LOGIN/LOGOUT/password-change into a NestJS AuthModule, and add the JwtAuthGuard + PermissionsGuard every later phase needs.",
+      "exitCriteria": [
+        "GET /api/v1/auth/me, POST /api/v1/auth/login, POST /api/v1/auth/logout, POST /api/v1/auth/change-password implemented and tested",
+        "apps/web does not verify JWTs itself and does not read the User table for session hydration",
+        "admin-e2e.test.ts route-module imports for auth/* are removed and replaced by NestJS e2e coverage"
+      ]
+    },
+    "2": {
+      "name": "Public booking catalog",
+      "goal": "Move the unauthenticated patient self-service surface (doctors, locations, availability, book) into NestJS so the booking wizard talks to the API only.",
+      "exitCriteria": [
+        "Wizard consumes apiFetch/apiFetchValidated against NEXT_PUBLIC_API_URL",
+        "app/api/doctors, app/api/locations, app/api/appointments/{availability,book} deleted",
+        "Server-side overlap semantics preserved (409 on double booking)"
+      ]
+    },
+    "3": {
+      "name": "Money and messaging",
+      "goal": "Move payment order/verify/webhook and communications send/history into NestJS modules with the provider abstractions, idempotency and truthful NOT_CONFIGURED behaviour intact.",
+      "exitCriteria": [
+        "Webhook stays public and HMAC-verified; payment idempotency preserved",
+        "COMMUNICATIONS_ENABLED=false still sends nothing and reports NOT_CONFIGURED",
+        "app/api/admin/communications and app/api/payments/* deleted"
+      ]
+    },
+    "4": {
+      "name": "Admin read + write APIs",
+      "goal": "Replace direct Prisma reads in admin Server Components and the writes in server actions with NestJS endpoints consumed by the web app.",
+      "exitCriteria": [
+        "Resource controller coverage for patients, doctors, appointments, locations, users, audit log and reports",
+        "apps/web no longer imports @/lib/{patients,admin-doctors,appointments,locations,users,communications}"
+      ]
+    },
+    "5": {
+      "name": "Delete the BFF shell",
+      "goal": "Remove the residual Next.js data layer and the web-side Prisma dependency so the web app is a pure client of NestJS.",
+      "exitCriteria": [
+        "app/api directory removed and no route.ts remains",
+        "apps/web/src/lib/db.ts, audit.ts, payments/ and communications/ removed",
+        "@prisma/client and prisma removed from apps/web/package.json",
+        "node scripts/audit-bff.mjs --strict exits 0"
+      ]
+    }
+  },
+  "routes": [
+    {
+      "webPath": "/api/auth/login",
+      "webFile": "apps/web/src/app/api/auth/login/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/auth/login",
+      "nestModule": "auth",
+      "nestController": "apps/api/src/auth/auth.controller.ts",
+      "nestHandler": "login",
+      "auth": "public",
+      "phase": 1,
+      "state": "pending",
+      "consumers": ["apps/web/src/components/LoginForm.tsx"],
+      "testRefs": ["apps/web/src/lib/admin-e2e.test.ts"],
+      "models": ["User", "Organization", "Permission", "AuditLog"],
+      "notes": "Brute-force guard is an in-memory Map (5/15min per IP+email) that resets per server instance; the NestJS port needs a shared store before horizontal scaling. LOGIN_FAILED audit falls back to the first Organization when the slug is unknown."
+    },
+    {
+      "webPath": "/api/auth/logout",
+      "webFile": "apps/web/src/app/api/auth/logout/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/auth/logout",
+      "nestModule": "auth",
+      "nestController": "apps/api/src/auth/auth.controller.ts",
+      "nestHandler": "logout",
+      "auth": "session-cookie",
+      "phase": 1,
+      "state": "pending",
+      "consumers": ["apps/web/src/app/admin/layout.tsx"],
+      "testRefs": ["apps/web/src/lib/admin-e2e.test.ts"],
+      "models": ["AuditLog"],
+      "notes": "Only caller is the admin layout server action that clears cookies. No token revocation exists beyond clearing cookies."
+    },
+    {
+      "webPath": "/api/auth/me",
+      "webFile": "apps/web/src/app/api/auth/me/route.ts",
+      "method": "GET",
+      "nestPath": "/api/v1/auth/me",
+      "nestModule": "auth",
+      "nestController": "apps/api/src/auth/auth.controller.ts",
+      "nestHandler": "me",
+      "auth": "session-cookie",
+      "phase": 1,
+      "state": "pending",
+      "consumers": [],
+      "testRefs": ["apps/web/src/lib/admin-e2e.test.ts"],
+      "models": ["User", "Permission"],
+      "notes": "No production caller found (tests only). Deletable as soon as GET /api/v1/auth/me exists, because the admin layout uses getSession() directly."
+    },
+    {
+      "webPath": "/api/auth/change-password",
+      "webFile": "apps/web/src/app/api/auth/change-password/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/auth/change-password",
+      "nestModule": "auth",
+      "nestController": "apps/api/src/auth/auth.controller.ts",
+      "nestHandler": "changePassword",
+      "auth": "session-bearer",
+      "phase": 1,
+      "state": "pending",
+      "consumers": ["apps/web/src/app/admin/settings/form.tsx"],
+      "testRefs": [],
+      "models": ["User", "AuditLog"],
+      "notes": "Increments User.tokenVersion to revoke existing tokens; the NestJS port must keep that revocation check inside the auth guard."
+    },
+    {
+      "webPath": "/api/doctors",
+      "webFile": "apps/web/src/app/api/doctors/route.ts",
+      "method": "GET",
+      "nestPath": "/api/v1/doctors",
+      "nestModule": "doctors",
+      "nestController": "apps/api/src/doctors/doctors.controller.ts",
+      "nestHandler": "findAll",
+      "auth": "public",
+      "phase": 2,
+      "state": "pending",
+      "consumers": ["apps/web/src/components/booking/BookAppointmentWizard.tsx"],
+      "testRefs": [],
+      "models": ["Doctor", "DoctorSpecialty"],
+      "notes": "Public route with no organization scoping and no status allowlist: status comes straight from the query string and is passed into Prisma as an unvalidated value. The NestJS port must validate status against DoctorStatus and scope by organization/location."
+    },
+    {
+      "webPath": "/api/locations",
+      "webFile": "apps/web/src/app/api/locations/route.ts",
+      "method": "GET",
+      "nestPath": "/api/v1/locations",
+      "nestModule": "locations",
+      "nestController": "apps/api/src/locations/locations.controller.ts",
+      "nestHandler": "findPublic",
+      "auth": "public",
+      "phase": 2,
+      "state": "pending",
+      "consumers": ["apps/web/src/components/booking/BookAppointmentWizard.tsx"],
+      "testRefs": [],
+      "models": ["Location"],
+      "notes": "Returns only ACTIVE locations but is not organization-scoped (single-tenant today). The NestJS public read must not shadow the authenticated admin listing at GET /api/v1/locations."
+    },
+    {
+      "webPath": "/api/appointments/availability",
+      "webFile": "apps/web/src/app/api/appointments/availability/route.ts",
+      "method": "GET",
+      "nestPath": "/api/v1/appointments/availability",
+      "nestModule": "appointments",
+      "nestController": "apps/api/src/appointments/appointments.controller.ts",
+      "nestHandler": "availability",
+      "auth": "public",
+      "phase": 2,
+      "state": "pending",
+      "consumers": ["apps/web/src/components/booking/BookAppointmentWizard.tsx"],
+      "testRefs": [],
+      "models": ["Doctor", "Appointment"],
+      "notes": "Slots are hard-coded 09:00-17:00 hourly with a 30 minute duration and use server-local time via naive Date parsing; opening hours and timezone (Organization.timezone) must be modelled in the NestJS port instead of being duplicated."
+    },
+    {
+      "webPath": "/api/appointments/book",
+      "webFile": "apps/web/src/app/api/appointments/book/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/appointments/book",
+      "nestModule": "appointments",
+      "nestController": "apps/api/src/appointments/appointments.controller.ts",
+      "nestHandler": "book",
+      "auth": "public",
+      "phase": 2,
+      "state": "pending",
+      "consumers": ["apps/web/src/components/booking/BookAppointmentWizard.tsx"],
+      "testRefs": [],
+      "models": ["Doctor", "Location", "Organization", "Patient", "Appointment", "Communication", "AuditLog"],
+      "notes": "Highest-risk handler in the BFF: it hard-codes the 'citydental' organization slug, silently reuses any patient matched by email inside that org (an enumeration vector), and does the overlap check + create outside a transaction so two concurrent bookings can both pass. Communication provider failures are swallowed on purpose."
+    },
+    {
+      "webPath": "/api/admin/communications",
+      "webFile": "apps/web/src/app/api/admin/communications/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/communications",
+      "nestModule": "communications",
+      "nestController": "apps/api/src/communications/communications.controller.ts",
+      "nestHandler": "send",
+      "auth": "session-cookie",
+      "phase": 3,
+      "state": "pending",
+      "consumers": ["apps/web/src/app/admin/communications/composer.tsx"],
+      "testRefs": ["apps/web/src/lib/admin-e2e.test.ts"],
+      "models": ["Patient", "Communication", "AuditLog"],
+      "notes": "Requires patient:read (a read permission gates a write/send action) and returns 502/503 for provider failures. Permission should become communication:send or patient:update in the NestJS port, and the pending decision on whether the webhook/queue belongs to the worker must be settled first."
+    },
+    {
+      "webPath": "/api/payments/create-order",
+      "webFile": "apps/web/src/app/api/payments/create-order/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/payments/orders",
+      "nestModule": "payments",
+      "nestController": "apps/api/src/payments/payments.controller.ts",
+      "nestHandler": "createOrder",
+      "auth": "public",
+      "phase": 3,
+      "state": "pending",
+      "consumers": [],
+      "testRefs": ["apps/web/src/lib/booking-payment.test.ts"],
+      "models": ["Appointment", "Payment", "AuditLog"],
+      "notes": "Unauthenticated and unowned: any caller who knows an appointment id can create a payment order for it, and the client may pick an arbitrary ageGroup (which sets the fee). The NestJS port must derive the fee server-side from the stored appointment and treat the order as unauthenticated-but-rate-limited."
+    },
+    {
+      "webPath": "/api/payments/verify",
+      "webFile": "apps/web/src/app/api/payments/verify/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/payments/verify",
+      "nestModule": "payments",
+      "nestController": "apps/api/src/payments/payments.controller.ts",
+      "nestHandler": "verify",
+      "auth": "public",
+      "phase": 3,
+      "state": "pending",
+      "consumers": [],
+      "testRefs": ["apps/web/src/lib/booking-payment.test.ts"],
+      "models": ["Payment", "Appointment", "AuditLog"],
+      "notes": "No browser caller exists (the wizard is pay-at-clinic only), so this duplicates the webhook path. Decide in the NestJS port whether verify survives as a client-return endpoint or is removed in favour of webhook-only confirmation."
+    },
+    {
+      "webPath": "/api/payments/webhook",
+      "webFile": "apps/web/src/app/api/payments/webhook/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/payments/webhook",
+      "nestModule": "payments",
+      "nestController": "apps/api/src/payments/payments.controller.ts",
+      "nestHandler": "webhook",
+      "auth": "public-hmac",
+      "phase": 3,
+      "state": "pending",
+      "consumers": [],
+      "testRefs": ["apps/web/src/lib/booking-payment.test.ts"],
+      "models": ["Payment", "Appointment", "AuditLog"],
+      "notes": "Provider-to-provider callback; must remain unauthenticated and signature-verified. Idempotency is a read-then-write on providerPaymentId (not a unique constraint), so concurrent deliveries can double-process. The raw body is not preserved, which blocks real HMAC verification over the exact payload."
+    },
+    {
+      "webPath": "/api/reports/export",
+      "webFile": "apps/web/src/app/api/reports/export/route.ts",
+      "method": "GET",
+      "nestPath": "/api/v1/reports/export",
+      "nestModule": "reports",
+      "nestController": "apps/api/src/reports/reports.controller.ts",
+      "nestHandler": "exportCsv",
+      "auth": "session-cookie",
+      "phase": 4,
+      "state": "pending",
+      "consumers": ["apps/web/src/app/admin/reports/page.tsx"],
+      "testRefs": [],
+      "models": ["Patient", "Payment", "Appointment"],
+      "notes": "CSV is built by naive string concatenation (no quoting/escaping) so any comma or quote in a patient name or address corrupts the file. Entity is an unvalidated string with an appointments fallback. Consumed by plain <a href> links, so the NestJS replacement must work with cookie auth or the links must become signed URLs."
+    }
+  ],
+  "serverSurfaces": [
+    {
+      "webFile": "apps/web/src/app/admin/layout.tsx",
+      "kind": "server-action",
+      "actions": ["signOut"],
+      "targetEndpoints": ["POST /api/v1/auth/logout"],
+      "phase": 1,
+      "state": "pending",
+      "models": ["AuditLog"],
+      "notes": "Clears the HttpOnly cookies inline instead of auditing LOGOUT through the API; after phase 1 the form action must call the NestJS logout endpoint."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/settings/page.tsx",
+      "kind": "server-read",
+      "actions": ["changePassword (form posts to /api/auth/change-password)"],
+      "targetEndpoints": ["POST /api/v1/auth/change-password"],
+      "phase": 1,
+      "state": "pending",
+      "models": ["User", "AuditLog"],
+      "notes": "The settings form posts to the BFF route; in phase 1 the form target becomes the API base URL and the client clears local auth state on success."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/users/new/page.tsx",
+      "kind": "server-action",
+      "actions": ["action (createUser + assignRole)"],
+      "targetEndpoints": ["POST /api/v1/users", "POST /api/v1/users/:id/roles"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["User", "UserRole", "Role", "Location", "AuditLog"],
+      "notes": "Reads prisma directly for the role list on top of calling lib/users; both the write action and the read must move to the API."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/patients/new/page.tsx",
+      "kind": "server-action",
+      "actions": ["action (createPatient)"],
+      "targetEndpoints": ["POST /api/v1/patients"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Patient", "AuditLog"],
+      "notes": "Server action redirects on success; after migration the client must post to the API and refresh the route."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/doctors/new/page.tsx",
+      "kind": "server-action",
+      "actions": ["action (createDoctor)"],
+      "targetEndpoints": ["POST /api/v1/doctors"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Doctor", "DoctorSpecialty", "AuditLog"],
+      "notes": "Specialty handling requires an explicit contract (set of specialty ids) rather than free-text form fields."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/locations/new/page.tsx",
+      "kind": "server-action",
+      "actions": ["action (createLocation)"],
+      "targetEndpoints": ["POST /api/v1/locations"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Location", "AuditLog"],
+      "notes": "Location creation needs organizationId from the session in the API, never from the form."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/appointments/new/page.tsx",
+      "kind": "server-action",
+      "actions": ["action (createAppointment)"],
+      "targetEndpoints": ["POST /api/v1/appointments"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Appointment", "Patient", "Doctor", "Location", "AuditLog"],
+      "notes": "Overlap conflict is checked before create outside a transaction, the same race as the public booking route; the NestJS port must serialise it."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/reports/dashboard", "GET /api/v1/communications/status"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Appointment", "Patient", "Payment", "Communication"],
+      "notes": "Dashboard counts run as raw prisma.count calls in the page and provider status is read from process.env inside the web server; both belong to the API (and to a real readiness endpoint)."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/audit/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/audit-logs"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["AuditLog", "User"],
+      "notes": "AuditLog is the compliance record of every other write; its read path should be paginated and filterable in the API, not rendered from an unbounded prisma query."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/reports/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/reports/summary", "GET /api/v1/reports/export"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Appointment", "Payment", "Patient", "Location"],
+      "notes": "Aggregates (count/groupBy/_sum) are computed in the web server today; they must become single API queries so location isolation is enforced in one place."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/appointments/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/appointments"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Appointment", "Patient", "Doctor", "Location"],
+      "notes": "Pagination and location scoping are re-implemented in lib/appointments; the API contract must expose page/pageSize/totalPages."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/appointments/[id]/page.tsx",
+      "kind": "server-read",
+      "actions": ["action (updateAppointment status)"],
+      "targetEndpoints": ["GET /api/v1/appointments/:id", "PATCH /api/v1/appointments/:id"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Appointment", "Patient", "Doctor", "Location", "AuditLog"],
+      "notes": "Same file holds the read and the status write; both must move together so the detail view cannot diverge from the API transition rules. Status changes are enum-limited but not workflow-limited (for example CHECKED_IN after CANCELLED), so the API should own the transition graph."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/communications/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/communications", "GET /api/v1/communications/status"],
+      "phase": 3,
+      "state": "pending",
+      "models": ["Communication", "Patient", "User"],
+      "notes": "Communication history read plus provider status; must never report CONNECTED unless the API can actually deliver."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/doctors/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/doctors"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Doctor", "DoctorSpecialty", "Location"],
+      "notes": "Admin listing must be the authenticated variant of GET /api/v1/doctors, distinct from the public booking projection."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/doctors/[id]/page.tsx",
+      "kind": "server-read",
+      "actions": ["action (updateDoctor / status)"],
+      "targetEndpoints": ["GET /api/v1/doctors/:id", "PATCH /api/v1/doctors/:id"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Doctor", "DoctorSpecialty", "Location", "AuditLog"],
+      "notes": "Doctor detail read and update share one API resource. Location access is enforced by requireLocationAccess today, which the NestJS guard must reproduce."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/locations/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/locations"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Location"],
+      "notes": "Admin listing is location-scoped per session while the public booking listing is not, so the API must branch on auth rather than on a query flag."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/locations/[id]/page.tsx",
+      "kind": "server-read",
+      "actions": ["updateAction", "statusAction"],
+      "targetEndpoints": ["GET /api/v1/locations/:id", "PATCH /api/v1/locations/:id", "POST /api/v1/locations/:id/status"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Location", "UserRole", "AuditLog"],
+      "notes": "Assigned-user warning is computed from UserRole counts in lib/locations; it should be part of the API response. The status change must also return that warning explicitly instead of relying on server-rendered text."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/patients/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/patients"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Patient", "Location"],
+      "notes": "Patient list must stay location-filtered inside the API (PHI boundary)."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/patients/[id]/page.tsx",
+      "kind": "server-read",
+      "actions": ["action (updatePatient / archive)"],
+      "targetEndpoints": ["GET /api/v1/patients/:id", "PATCH /api/v1/patients/:id"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["Patient", "Appointment", "Location", "AuditLog"],
+      "notes": "Patient detail is the most sensitive read in the app; after migration the web must hold no direct Prisma handle at all. Status and archive transitions are validated only by updatePatientSchema today, so the API must own the allowed transition set."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/users/page.tsx",
+      "kind": "server-read",
+      "actions": [],
+      "targetEndpoints": ["GET /api/v1/users"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["User", "UserRole", "Role", "Location"],
+      "notes": "listUsers strips passwordHash in the web layer today; the API must never select the hash at all."
+    },
+    {
+      "webFile": "apps/web/src/app/admin/users/[id]/page.tsx",
+      "kind": "server-read",
+      "actions": ["updateAction", "roleAction"],
+      "targetEndpoints": ["GET /api/v1/users/:id", "GET /api/v1/roles", "PATCH /api/v1/users/:id", "POST /api/v1/users/:id/roles"],
+      "phase": 4,
+      "state": "pending",
+      "models": ["User", "UserRole", "Role", "Location", "AuditLog"],
+      "notes": "Role catalogue is read straight from Prisma in the page; expose it as GET /api/v1/roles so the privilege matrix has one source. The privilege-escalation guard (a caller cannot assign a role holding permissions they lack) lives in lib/users and must be reproduced in NestJS, not only in the form."
+    }
+  ],
+  "nestExceptions": ["GET /api/v1/health"]
+}

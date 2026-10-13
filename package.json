@@ -1,0 +1,33 @@
+{
+  "name": "city-dental",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n WEB,API,WORKER -c blue,green,red \"pnpm dev:web\" \"pnpm dev:api\" \"pnpm dev:worker\"",
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:worker": "pnpm --filter worker dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "db:migrate": "pnpm --filter api exec prisma migrate deploy",
+    "db:seed": "pnpm --filter api exec ts-node -r tsconfig-paths/register prisma/seed.ts",
+    "db:studio": "pnpm --filter api exec prisma studio",
+    "audit:bff": "node scripts/audit-bff.mjs",
+    "audit:bff:check": "node scripts/audit-bff.mjs --check",
+    "audit:bff:strict": "node scripts/audit-bff.mjs --strict"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "overrides": {}
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "pg": "^8.23.0",
+    "prisma": "5.22.0"
+  }
+}

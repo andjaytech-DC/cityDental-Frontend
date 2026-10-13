@@ -1,0 +1,46 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest --runInBand",
+    "test:api": "jest --runInBand --runTestsByPath src/lib/api.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@citydental/types": "workspace:*",
+    "@citydental/validation": "workspace:*",
+    "@hookform/resolvers": "^3.3.0",
+    "@prisma/client": "5.22.0",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.3",
+    "next": "^14.2.0",
+    "nodemailer": "^10.0.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.51.0",
+    "server-only": "^0.0.1",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jest": "^29.5.13",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.0.0",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.2.0",
+    "jest": "^29.7.0",
+    "postcss": "^8.4.47",
+    "prisma": "5.22.0",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.0.0"
+  }
+}

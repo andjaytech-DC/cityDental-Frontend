@@ -1,0 +1,112 @@
+# CityDental Development Rules
+
+## Project
+CityDental is a healthcare/dental platform.
+
+## Architecture
+Frontend:
+- Next.js
+- TypeScript
+- React
+
+Backend:
+- NestJS
+- TypeScript
+
+Database:
+- PostgreSQL
+- Prisma where applicable
+
+Infrastructure:
+- Redis where required
+- BullMQ for background jobs where required
+
+## Architecture Rule
+
+The Next.js application is the frontend.
+
+Business logic and database access belong in the NestJS backend.
+
+Do NOT introduce direct Prisma/database access into Next.js pages or components unless explicitly required by the architecture.
+
+Preferred flow:
+
+Next.js
+  ↓
+NestJS REST API
+  ↓
+Services
+  ↓
+Prisma
+  ↓
+PostgreSQL
+
+## Coding Rules
+
+- Inspect existing code before modifying it.
+- Reuse existing components and services where appropriate.
+- Do not duplicate functionality.
+- Do not create unnecessary files.
+- Do not change the architecture without justification.
+- Preserve existing working functionality.
+- Use TypeScript.
+- Avoid `any` unless unavoidable.
+- Handle loading, error and empty states.
+- Validate API responses.
+- Never expose secrets in frontend code.
+
+## Database
+
+Do not directly modify production data.
+
+Do not invent database fields.
+
+Inspect Prisma schema and existing migrations before changing database-related code.
+
+## API
+
+Before creating a new endpoint:
+1. Search for an existing endpoint.
+2. Search for an existing service.
+3. Search for existing DTOs/types.
+4. Reuse existing functionality when possible.
+
+## UI
+
+Use the existing design system/components.
+
+Maintain responsive layouts.
+
+Healthcare UI should be:
+- clean
+- professional
+- accessible
+- consistent
+- responsive
+
+Do not introduce random colors or styles.
+
+## Testing
+
+After modifications:
+
+1. Run TypeScript checks.
+2. Run lint.
+3. Run relevant unit/integration tests.
+4. Run build when appropriate.
+5. Report exactly what passed and failed.
+
+Never claim a test passed unless it was actually executed.
+
+## Agent Behavior
+
+Before making large changes:
+- inspect the repository
+- identify the relevant files
+- explain the implementation plan
+
+For simple fixes, proceed directly.
+
+Do not rewrite working code unnecessarily.
+
+Do not delete existing functionality without explicit justification.

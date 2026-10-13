@@ -1,0 +1,56 @@
+# ── Dependencies ─────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+
+# ── Build output ─────────────────────────────────────────────
+dist/
+build/
+.next/
+out/
+.turbo/
+.cache/
+*.tsbuildinfo
+
+# ── Environment (never commit secrets) ───────────────────────
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# ── Prisma ───────────────────────────────────────────────────
+prisma/*.db
+prisma/*.db-journal
+prisma/.env
+
+# ── Test / coverage ──────────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# ─ Logs ─────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Editors / OS ─────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.swp
+
+# ── Runtime data ─────────────────────────────────────────────
+.data/
+uploads/
+tmp/
+temp/

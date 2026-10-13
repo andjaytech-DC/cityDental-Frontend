@@ -1,0 +1,59 @@
+# City Dental — local development infrastructure.
+# Postgres + Redis only. The web/api/worker apps run via `pnpm dev`.
+
+name: city-dental
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: citydental-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-citydental}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citydental}
+      POSTGRES_DB: ${POSTGRES_DB:-citydental}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - citydental-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-citydental} -d ${POSTGRES_DB:-citydental}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - citydental
+
+  redis:
+    image: redis:7-alpine
+    container_name: citydental-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - citydental-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - citydental
+
+volumes:
+  citydental-postgres-data:
+    name: citydental-postgres-data
+  citydental-redis-data:
+    name: citydental-redis-data
+
+networks:
+  citydental:
+    name: citydental
+    driver: bridge
