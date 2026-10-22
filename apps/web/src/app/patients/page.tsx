@@ -2,8 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import type { PatientDto } from "@citydental/types";
 import { PatientWorkspace, type WorkspaceState } from "@/components/clinical/WorkspaceLists";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Patients | City Dental" };
+export const metadata: Metadata = pageMetadata({
+  title: "Patients | City Dental",
+  description: "CityDental patient workspace. Sign in to view patient records and administration.",
+  path: "/patients",
+  noIndex: true,
+});
 
 /**
  * Contract-ready: the patient DTO/list contract exists, but no NestJS

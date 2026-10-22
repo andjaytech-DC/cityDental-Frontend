@@ -3,6 +3,8 @@ import { getAppointment, updateAppointment } from "@/lib/appointments";
 import { getSession } from "@/lib/auth/session";
 import { Card } from "@/components/ui";
 
+export const metadata = { title: "Appointment | CityDental Admin" };
+
 export default async function AppointmentDetail({ params }: { params: { id: string } }) {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/appointments");

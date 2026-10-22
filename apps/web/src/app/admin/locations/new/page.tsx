@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { createLocation } from "@/lib/locations";
 
+export const metadata = { title: "New Location | CityDental Admin" };
+
 export default async function NewLocationPage() {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/locations/new");

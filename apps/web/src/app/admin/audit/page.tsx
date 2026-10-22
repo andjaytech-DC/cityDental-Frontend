@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { Card, Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, PageHeading, ErrorState } from "@/components/ui";
 
+export const metadata = { title: "Audit Log | CityDental Admin" };
+
 export default async function AuditPage({ searchParams }: { searchParams: { page?: string } }) {
   const s = await getSession();
   if (!s) return null;

@@ -7,6 +7,8 @@ function startOfDay(d: Date) { const x = new Date(d); x.setHours(0,0,0,0); retur
 function startOfWeek(d: Date) { const x = startOfDay(d); x.setDate(x.getDate() - x.getDay()); return x; }
 function startOfMonth(d: Date) { const x = new Date(d); x.setDate(1); x.setHours(0,0,0,0); return x; }
 
+export const metadata = { title: "Reports | CityDental Admin" };
+
 export default async function ReportsPage({ searchParams }: { searchParams: { from?: string; to?: string } }) {
   const session = await getSession();
   if (!session) return null;

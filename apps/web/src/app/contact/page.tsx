@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ContactForm } from "@/components/ContactForm";
 import { doctorProfile } from "@/lib/navigation";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Contact CityDental | Etah", description: "Get in touch with CityDental in Etah. We're here to help you with your dental care needs." };
+export const metadata: Metadata = pageMetadata({
+  title: "Contact CityDental | Etah",
+  description: "Get in touch with CityDental in Etah by phone, WhatsApp, email, or the website contact form.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
   const d = doctorProfile;
@@ -12,6 +19,9 @@ export default function ContactPage() {
 
   return (
     <div className="contact-page">
+      <div className="premium-wrap">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
+      </div>
       <section className="contact-hero premium-section premium-wrap" aria-labelledby="contact-title">
         <p className="eyebrow"><span className="eyebrow-line" /> Contact</p>
         <h1 id="contact-title">Let&rsquo;s talk about your smile.</h1>
@@ -40,6 +50,14 @@ export default function ContactPage() {
             </a>
           </div>
         </div>
+      </section>
+
+      <section className="premium-section premium-wrap" aria-labelledby="contact-form-title">
+        <div className="cd-page-heading" id="contact-form-title">
+          <h2>Send a message</h2>
+          <p>Prefer to write? Use the form below and the clinic will reply by email. Messages are delivered server-side through the practice&rsquo;s configured mailbox.</p>
+        </div>
+        <ContactForm />
       </section>
 
       <section className="premium-cta premium-wrap" aria-labelledby="contact-cta-title">

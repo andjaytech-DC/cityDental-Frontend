@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth/session";
 import { createAppointment } from "@/lib/appointments";
 import { prisma } from "@/lib/db";
 
+export const metadata = { title: "New Appointment | CityDental Admin" };
+
 export default async function NewAppointmentPage() {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/appointments/new");

@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getSession, clearAuthCookies } from "@/lib/auth/session";
 import { AdminNav } from "./AdminNav";
 import { AdminMobileNav } from "./AdminMobileNav";
 import "./admin.css";
+
+export const metadata: Metadata = {
+  title: "Admin | CityDental",
+  description: "CityDental administration workspace.",
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();

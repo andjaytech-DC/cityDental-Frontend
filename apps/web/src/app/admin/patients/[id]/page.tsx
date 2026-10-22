@@ -3,6 +3,8 @@ import { getPatient, updatePatient } from "@/lib/patients";
 import { getSession } from "@/lib/auth/session";
 import { Card, Badge } from "@/components/ui";
 
+export const metadata = { title: "Patient | CityDental Admin" };
+
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession();
   if (!session) redirect("/login?next=/admin/patients");

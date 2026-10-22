@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getServiceBySlug, serviceCategories } from "@/lib/services";
-import { ServiceBreadcrumb } from "@/components/ServicesContent";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Badge, PageHeading } from "@/components/ui";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
 export async function generateStaticParams() {
@@ -16,8 +17,12 @@ export async function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { category: string; service: string } }): Metadata {
   const result = getServiceBySlug(params.category, params.service);
-  if (!result) return { title: "Service Not Found" };
-  return { title: `${result.service.name} | CityDental`, description: result.service.description };
+  if (!result) return { title: "Service Not Found | CityDental", robots: { index: false, follow: false } };
+  return pageMetadata({
+    title: `${result.service.name} | CityDental`,
+    description: result.service.description,
+    path: `/services/${result.category.slug}/${result.service.slug}`,
+  });
 }
 
 export default function ServicePage({ params }: { params: { category: string; service: string } }) {
@@ -25,15 +30,18 @@ export default function ServicePage({ params }: { params: { category: string; se
   if (!result) notFound();
 
   const { category, service } = result;
+  const relatedServices = category.services.filter(item => item.slug !== service.slug).slice(0, 4);
 
   return (
     <div className="service-detail-page">
-      <ServiceBreadcrumb items={[
-        { label: "Home", href: "/" },
-        { label: "Services", href: "/services" },
-        { label: category.name, href: `/services/${category.slug}` },
-        { label: service.name },
-      ]} />
+      <div className="premium-wrap">
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Services", href: "/services" },
+          { label: category.name, href: `/services/${category.slug}` },
+          { label: service.name },
+        ]} />
+      </div>
 
       <section className="service-detail-hero premium-section premium-wrap" aria-labelledby="service-title">
         <p className="eyebrow"><span className="eyebrow-line" /> {category.name}</p>
@@ -62,6 +70,21 @@ export default function ServicePage({ params }: { params: { category: string; se
             <h3>Ongoing communication</h3>
             <p>Throughout your care, your team will keep you informed about what to expect and what options are available. Open communication helps ensure you feel comfortable and confident at every point.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="premium-section premium-wrap" aria-labelledby="service-related-title">
+        <div className="cd-page-heading" id="service-related-title">
+          <h2>Related care and next steps</h2>
+          <p>Services in the same category, plus the information you may need before booking.</p>
+        </div>
+        <div className="cd-related">
+          {relatedServices.map(item => (
+            <Link key={item.slug} href={`/services/${category.slug}/${item.slug}`}>{item.name}</Link>
+          ))}
+          <Link href="/doctors">Meet our doctors</Link>
+          <Link href="/patient-resources">Patient resources</Link>
+          <Link href="/book-appointment">Book an appointment</Link>
         </div>
       </section>
 

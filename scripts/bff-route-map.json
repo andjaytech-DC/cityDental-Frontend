@@ -259,6 +259,22 @@
       "testRefs": [],
       "models": ["Patient", "Payment", "Appointment"],
       "notes": "CSV is built by naive string concatenation (no quoting/escaping) so any comma or quote in a patient name or address corrupts the file. Entity is an unvalidated string with an appointments fallback. Consumed by plain <a href> links, so the NestJS replacement must work with cookie auth or the links must become signed URLs."
+    },
+    {
+      "webPath": "/api/contact",
+      "webFile": "apps/web/src/app/api/contact/route.ts",
+      "method": "POST",
+      "nestPath": "/api/v1/contact",
+      "nestModule": "contact",
+      "nestController": "apps/api/src/contact/contact.controller.ts",
+      "nestHandler": "submit",
+      "auth": "public",
+      "phase": 3,
+      "state": "pending",
+      "consumers": ["apps/web/src/components/ContactForm.tsx"],
+      "testRefs": [],
+      "models": [],
+      "notes": "Public website enquiry form. Honeypot plus an in-memory 3-per-10-minute per-IP limit; the NestJS port needs a shared store before horizontal scaling. Returns 503/NOT_CONFIGURED when SMTP is unavailable instead of faking delivery."
     }
   ],
   "serverSurfaces": [

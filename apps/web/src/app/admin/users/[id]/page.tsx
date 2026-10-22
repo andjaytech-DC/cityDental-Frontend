@@ -4,6 +4,8 @@ import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui";
 
+export const metadata = { title: "User | CityDental Admin" };
+
 export default async function UserDetail({ params }: { params: { id: string } }) {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/users");

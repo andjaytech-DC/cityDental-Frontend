@@ -1,5 +1,14 @@
 import { Badge, Card, CardLink, EmptyState, PageHeading, Table, TableHead, TableBody, TableRow, TableHeader, TableEmpty } from "@/components/ui";
 import { WorkspaceHelp } from "@/components/WorkspaceHelp";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Workspace | City Dental",
+  description: "CityDental practice workspace. Sign in to view appointments and patient administration.",
+  path: "/workspace",
+  noIndex: true,
+});
 
 export default function HomePage() {
   return <>

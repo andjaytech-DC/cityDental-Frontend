@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { serviceCategories } from "@/lib/services";
 import { CategoryCard } from "@/components/ServicesContent";
 import { PageHeading } from "@/components/ui";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SectionHeading } from "@/components/MarketingSections";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Services | CityDental", description: "Explore CityDental's comprehensive service categories including oral surgery, implants & bone grafting, and specialty services." };
+export const metadata: Metadata = pageMetadata({
+  title: "Services | CityDental",
+  description: "Explore CityDental's comprehensive service categories including oral surgery, implants & bone grafting, and specialty services in Etah.",
+  path: "/services",
+});
 
 export default function ServicesPage() {
   return (
     <div className="services-page">
+      <div className="premium-wrap"><Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Services" }]} /></div>
       <section className="services-hero premium-section premium-wrap" aria-labelledby="services-hero-title">
         <p className="eyebrow"><span className="eyebrow-line" /> CityDental Services</p>
         <h1 id="services-hero-title">Comprehensive care,<br /><em>every step of the way.</em></h1>
@@ -43,6 +51,19 @@ export default function ServicesPage() {
               </a>
             ))
           )}
+        </div>
+      </section>
+
+      <section className="premium-section premium-wrap" aria-labelledby="services-related-title">
+        <div className="cd-page-heading" id="services-related-title">
+          <h2>Next steps</h2>
+          <p>Meet the team, read patient information, or request an appointment.</p>
+        </div>
+        <div className="cd-related">
+          <Link href="/doctors">Meet our doctors</Link>
+          <Link href="/patient-resources">Patient resources</Link>
+          <Link href="/book-appointment">Book an appointment</Link>
+          <Link href="/contact">Contact CityDental</Link>
         </div>
       </section>
     </div>

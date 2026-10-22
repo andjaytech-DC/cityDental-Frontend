@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth/session";
 import { createUser } from "@/lib/users";
 import { prisma } from "@/lib/db";
 
+export const metadata = { title: "New User | CityDental Admin" };
+
 export default async function NewUserPage() {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/users/new");

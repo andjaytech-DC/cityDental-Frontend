@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { serviceCategories, footerLinks, doctorProfile } from "@/lib/navigation";
+import { CookiePreferences } from "@/components/CookiePreferences";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -79,7 +80,10 @@ export function SiteFooter() {
       </div>
 
       <div className="premium-wrap footer-bottom">
-        <span>© {year} CityDental. All rights reserved.</span>
+        <div className="cd-footer-meta">
+          <span>© {year} CityDental. All rights reserved.</span>
+          <CookiePreferences />
+        </div>
         <span>Clinic information pending publication · No clinical records shown</span>
       </div>
     </footer>

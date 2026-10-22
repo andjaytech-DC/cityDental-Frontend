@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth/session";
 import { getCommunicationStatus } from "@/lib/communications";
 import { Card, Badge, Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, PageHeading } from "@/components/ui";
 
+export const metadata = { title: "Admin Dashboard | CityDental Admin" };
+
 export default async function AdminDashboard() {
   const session = await getSession();
   if (!session) return null;

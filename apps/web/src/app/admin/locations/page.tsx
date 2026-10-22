@@ -3,6 +3,8 @@ import { listLocations } from "@/lib/locations";
 import { getSession } from "@/lib/auth/session";
 import { Card, Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, PageHeading, ErrorState, Badge } from "@/components/ui";
 
+export const metadata = { title: "Locations | CityDental Admin" };
+
 export default async function AdminLocationsPage() {
   const s = await getSession();
   if (!s) return null;

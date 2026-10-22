@@ -3,6 +3,8 @@ import { getDoctor, updateDoctor } from "@/lib/admin-doctors";
 import { getSession } from "@/lib/auth/session";
 import { Card, Badge } from "@/components/ui";
 
+export const metadata = { title: "Doctor | CityDental Admin" };
+
 export default async function DoctorDetail({ params }: { params: { id: string } }) {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/doctors");

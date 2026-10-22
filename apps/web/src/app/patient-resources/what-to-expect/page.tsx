@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "What to Expect | CityDental", description: "A general overview of what happens during a typical visit to CityDental." };
+export const metadata: Metadata = pageMetadata({
+  title: "What to Expect | CityDental",
+  description: "A general overview of what happens during a typical visit to CityDental, from check-in to follow-up.",
+  path: "/patient-resources/what-to-expect",
+});
 
 export default function WhatToExpectPage() {
   return (
     <div className="patient-resource-detail">
+      <div className="premium-wrap">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Patient Resources", href: "/patient-resources" }, { label: "What to Expect" }]} />
+      </div>
       <section className="premium-section premium-wrap">
         <div className="cd-page-heading"><h1>What to Expect</h1><p>A general overview of what happens during a typical visit to CityDental.</p></div>
         <div className="resource-content">

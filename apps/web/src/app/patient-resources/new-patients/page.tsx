@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "New Patients | CityDental", description: "Information for new patients visiting CityDental for the first time." };
+export const metadata: Metadata = pageMetadata({
+  title: "New Patients | CityDental",
+  description: "Information for new patients visiting CityDental for the first time, including what to bring and how to prepare.",
+  path: "/patient-resources/new-patients",
+});
 
 export default function NewPatientsPage() {
   return (
     <div className="patient-resource-detail">
+      <div className="premium-wrap">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Patient Resources", href: "/patient-resources" }, { label: "New Patients" }]} />
+      </div>
       <section className="premium-section premium-wrap">
         <div className="cd-page-heading"><h1>New Patients</h1><p>Everything you need to know about your first visit to CityDental.</p></div>
         <div className="resource-content">

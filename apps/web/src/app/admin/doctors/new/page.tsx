@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { createDoctor } from "@/lib/admin-doctors";
 
+export const metadata = { title: "New Doctor | CityDental Admin" };
+
 export default async function NewDoctorPage() {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/doctors/new");

@@ -21,5 +21,6 @@ export {
   LoadingState,
   PageHeading,
 } from "./States";
+export { CardGridSkeleton, PageSkeleton, Skeleton, TableSkeleton } from "./Skeleton";
 
 

@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createPatientSchema, type CreatePatientInput } from "@citydental/validation";
 import { Button, Badge, PageHeading, Input, EmptyState } from "@/components/ui";
+import { useToast } from "@/components/ui/Toast";
+import { trackEvent } from "@/lib/analytics";
 
 type AgeGroup = "CHILD" | "ADULT" | "SENIOR";
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -11,6 +13,7 @@ type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 interface DoctorOption { id: string; firstName: string; lastName: string; specialties: { name: string }[]; primaryLocationId: string | null; status: string; location?: { name: string } }
 
 export function BookAppointmentWizard() {
+  const { push } = useToast();
   const [step, setStep] = useState<WizardStep>(1);
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [doctors, setDoctors] = useState<DoctorOption[]>([]);
@@ -77,9 +80,11 @@ export function BookAppointmentWizard() {
     const res = await fetch("/api/appointments/book", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const data = await res.json();
     setSubmitting(false);
-    if (!res.ok) { setError(data.message ?? "Booking failed"); return; }
+    if (!res.ok) { setError(data.message ?? "Booking failed"); push(data.message ?? "Booking failed. Please try again or call the clinic.", "error"); trackEvent("appointment_booked", { result: "failed" }); return; }
     setConfirmResult({ appointmentId: data.appointmentId, message: data.message, emailStatus: data.emailStatus, whatsappStatus: data.whatsappStatus });
     setStep(8);
+    push("Appointment confirmed. Pay at the clinic.", "success");
+    trackEvent("appointment_booked", { result: "success" });
   };
 
   const fee = ageGroup ? ({ CHILD: 400, ADULT: 500, SENIOR: 450 }[ageGroup] ?? 500) : 500;

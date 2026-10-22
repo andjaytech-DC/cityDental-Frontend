@@ -96,6 +96,7 @@ export const mainNavLinks: NavLink[] = [
   { href: "/doctors", label: "Doctors" },
   { href: "/services", label: "Services" },
   { href: "/patient-resources", label: "Patient Resources" },
+  { href: "/careers", label: "Careers" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -119,6 +120,7 @@ export const footerLinks = {
     { href: "/doctors", label: "Doctors" },
     { href: "/services", label: "Services" },
     { href: "/patient-resources", label: "Patient Resources" },
+    { href: "/careers", label: "Careers" },
     { href: "/contact", label: "Contact" },
   ],
   services: serviceCategories.map(c => ({ href: c.href, label: c.name })),

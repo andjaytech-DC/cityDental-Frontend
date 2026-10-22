@@ -2,6 +2,8 @@ import { getSession } from "@/lib/auth/session";
 import { PageHeading, Card } from "@/components/ui";
 import { ChangePasswordForm } from "./form";
 
+export const metadata = { title: "Settings | CityDental Admin" };
+
 export default async function SettingsPage() {
   const s = await getSession();
   if (!s) return null;

@@ -1,9 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { siteImages } from "@/lib/site-content";
 import { SectionHeading, AppointmentCTA } from "@/components/MarketingSections";
 import { serviceCategories } from "@/lib/services";
 import { doctorProfile } from "@/lib/doctors";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "CityDental | Thoughtful dental care in Etah",
+  description: "Patient-focused dental care in Etah. Explore services, meet the doctor, find patient resources and book an appointment with CityDental.",
+  path: "/",
+});
 
 export default function HomePage() {
   const image = siteImages.careSpace;

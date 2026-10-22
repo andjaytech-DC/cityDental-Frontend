@@ -2,8 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PatientForm } from "@/components/clinical/PatientForm";
 import { Card, PageHeading } from "@/components/ui";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Prepare patient details | City Dental" };
+export const metadata: Metadata = pageMetadata({
+  title: "Prepare patient details | City Dental",
+  description: "Prepare patient details in the CityDental workspace.",
+  path: "/patients/new",
+  noIndex: true,
+});
 export default function NewPatientPage() {
   return <>
     <Link href="/patients" className="cd-button cd-button-ghost mb-4">Back to patients</Link>

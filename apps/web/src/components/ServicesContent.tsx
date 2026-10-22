@@ -1,19 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import type { ServiceItem } from "@/lib/services";
 
+/** @deprecated Use <Breadcrumbs /> directly; kept as a thin alias for existing callers. */
 export function ServiceBreadcrumb({ items }: { items: Array<{ label: string; href?: string }> }) {
-  return <nav aria-label="Breadcrumb" className="service-breadcrumb">
-    <ol style={{ display: "flex", gap: ".5rem", listStyle: "none", padding: 0, margin: 0, flexWrap: "wrap" }}>
-      {items.map((item, i) => (
-        <li key={item.label}>
-          {i > 0 ? <span aria-hidden="true" style={{ color: "var(--color-text-secondary)" }}> / </span> : null}
-          {item.href ? <Link href={item.href} className="text-link">{item.label}</Link> : <span style={{ color: "var(--color-text-secondary)" }}>{item.label}</span>}
-        </li>
-      ))}
-    </ol>
-  </nav>;
+  return <Breadcrumbs items={items} />;
 }
 
 export function CategoryCard({ category, href }: { category: { name: string; description: string; services: ServiceItem[]; icon: string }; href: string }) {

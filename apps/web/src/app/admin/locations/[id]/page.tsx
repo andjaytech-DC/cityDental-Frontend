@@ -3,6 +3,8 @@ import { getLocation, updateLocation, setLocationStatus } from "@/lib/locations"
 import { getSession } from "@/lib/auth/session";
 import { Card, Badge } from "@/components/ui";
 
+export const metadata = { title: "Location | CityDental Admin" };
+
 export default async function LocationDetail({ params }: { params: { id: string } }) {
   const s = await getSession();
   if (!s) redirect("/login?next=/admin/locations");

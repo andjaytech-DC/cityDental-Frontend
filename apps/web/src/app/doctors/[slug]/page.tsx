@@ -1,18 +1,41 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PageHeading, Badge } from "@/components/ui";
-import { doctorProfile } from "@/lib/navigation";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { JsonLd } from "@/components/JsonLd";
+import { getDoctorBySlug, doctorSlugs } from "@/lib/doctors";
+import { dentistPageSchema } from "@/lib/schema";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: `Dr. Kamlesh Kumar Yadav | CityDental Etah`, description: `${doctorProfile.fullName} at CityDental, Etah. Contact CityDental for appointments.` };
+export async function generateStaticParams() {
+  return doctorSlugs.map(slug => ({ slug }));
+}
 
-export default function DoctorPage() {
-  const d = doctorProfile;
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const doctor = getDoctorBySlug(params.slug);
+  if (!doctor) return { title: "Doctor not found | CityDental", robots: { index: false, follow: false } };
+  return pageMetadata({
+    title: `${doctor.fullName} | CityDental Etah`,
+    description: `${doctor.fullName}, ${doctor.role} at CityDental in Etah. Contact CityDental for appointments and service information.`,
+    path: `/doctors/${doctor.slug}`,
+  });
+}
+
+export default function DoctorPage({ params }: { params: { slug: string } }) {
+  const d = getDoctorBySlug(params.slug);
+  if (!d) notFound();
+
   const waUrl = "https://wa.me/919415192948";
   const telUrl = "tel:+919415192948";
   const mailUrl = `mailto:${d.contact.email}`;
 
   return (
     <div className="doctor-profile-page">
+      <JsonLd data={dentistPageSchema()} />
+      <div className="premium-wrap">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Doctors", href: "/doctors" }, { label: d.fullName }]} />
+      </div>
       <section className="doctor-hero premium-section premium-wrap" aria-labelledby="doctor-name">
         <div className="doctor-hero-layout">
           <div className="doctor-visual">
@@ -38,7 +61,7 @@ export default function DoctorPage() {
       <section className="premium-section premium-wrap" aria-labelledby="doctor-profile-title">
         <PageHeading title="Professional Profile" description="Detailed professional credentials will be added once supplied and verified by the practice." />
         <div className="doctor-profile-card">
-          <p>Dr. Kamlesh Kumar Yadav is a dedicated dental professional providing patient-focused care at CityDental in Etah. The practice values clear communication, comfort, and individualized treatment planning for every patient.</p>
+          <p>{d.fullName} is a dedicated dental professional providing patient-focused care at CityDental in Etah. The practice values clear communication, comfort, and individualized treatment planning for every patient.</p>
         </div>
       </section>
 
@@ -61,6 +84,7 @@ export default function DoctorPage() {
             <Badge variant="info">7 services</Badge>
           </Link>
         </div>
+        <p className="mt-6"><Link href="/services" className="text-link">View the complete service catalog ↗</Link></p>
       </section>
 
       <section className="premium-section premium-wrap" aria-labelledby="doctor-philosophy-title">

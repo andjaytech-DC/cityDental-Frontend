@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionHeading } from "@/components/MarketingSections";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "About CityDental | Etah", description: "Learn about CityDental's patient-first approach to dental care in Etah." };
+export const metadata: Metadata = pageMetadata({
+  title: "About CityDental | Etah",
+  description: "Learn about CityDental's patient-first approach to dental care in Etah, from the first conversation to ongoing treatment.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
     <div className="about-page">
+      <div className="premium-wrap"><Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "About" }]} /></div>
       <section className="about-hero premium-section premium-wrap" aria-labelledby="about-title">
         <p className="eyebrow"><span className="eyebrow-line" /> About CityDental</p>
         <h1 id="about-title">A thoughtful practice,<br /><em>for every smile.</em></h1>

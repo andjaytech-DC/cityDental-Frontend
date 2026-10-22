@@ -3,6 +3,8 @@ import { listDoctors } from "@/lib/admin-doctors";
 import { Card, Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, PageHeading, ErrorState } from "@/components/ui";
 import { getSession } from "@/lib/auth/session";
 
+export const metadata = { title: "Doctors | CityDental Admin" };
+
 export default async function AdminDoctorsPage({ searchParams }: { searchParams: { search?: string; page?: string } }) {
   const session = await getSession();
   if (!session) return null;

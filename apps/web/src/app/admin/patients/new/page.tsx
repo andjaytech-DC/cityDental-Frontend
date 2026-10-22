@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth/session";
 import { createPatient } from "@/lib/patients";
 import { CreatePatientForm } from "./form";
 
+export const metadata = { title: "New Patient | CityDental Admin" };
+
 export default async function NewPatientPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/admin/patients/new");

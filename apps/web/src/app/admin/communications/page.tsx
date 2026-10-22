@@ -4,6 +4,8 @@ import { Card, PageHeading, Badge, Table, TableHead, TableBody, TableRow, TableH
 import { Composer } from "./composer";
 import { TEMPLATES } from "@/lib/communications/templates";
 
+export const metadata = { title: "Communications | CityDental Admin" };
+
 export default async function CommunicationsPage() {
   const s = await getSession();
   if (!s) return null;

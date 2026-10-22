@@ -3,6 +3,8 @@ import { listAppointments } from "@/lib/appointments";
 import { Card, Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState, PageHeading, ErrorState } from "@/components/ui";
 import { getSession } from "@/lib/auth/session";
 
+export const metadata = { title: "Appointments | CityDental Admin" };
+
 export default async function AdminAppointmentsPage({ searchParams }: { searchParams: { page?: string; status?: string } }) {
   const s = await getSession();
   if (!s) return null;

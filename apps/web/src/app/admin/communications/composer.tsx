@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useToast } from "@/components/ui/Toast";
 
 export function Composer({ patients }: { patients: { id: string; name: string; email: string | null; phone: string | null }[] }) {
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { push } = useToast();
 
   async function submit(formData: FormData): Promise<void> {
     setLoading(true);
@@ -20,9 +22,16 @@ export function Composer({ patients }: { patients: { id: string; name: string; e
       body: JSON.stringify(payload),
     });
     const data = (await res.json().catch(() => ({}))) as { status?: string; reason?: string };
-    if (data.status === "SUCCESS") setResult("Success — Communication sent successfully.");
-    else if (data.status === "NOT_CONFIGURED") setResult(`Not configured — ${data.reason ?? "Provider not configured."}`);
-    else setResult(`Failed — ${data.reason ?? (res.ok ? "Failed" : `HTTP ${res.status}`)}`);
+    if (data.status === "SUCCESS") {
+      setResult("Success — Communication sent successfully.");
+      push("Message sent successfully.", "success");
+    } else if (data.status === "NOT_CONFIGURED") {
+      setResult(`Not configured — ${data.reason ?? "Provider not configured."}`);
+      push("Messaging is not configured in this environment.", "info");
+    } else {
+      setResult(`Failed — ${data.reason ?? (res.ok ? "Failed" : `HTTP ${res.status}`)}`);
+      push(data.reason ?? "The message could not be sent.", "error");
+    }
     setLoading(false);
   }
 
