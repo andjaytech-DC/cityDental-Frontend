@@ -8,8 +8,6 @@ import {
   serviceCategories,
   mainNavLinks,
   aboutSections,
-  patientResourceSections,
-  doctorProfile,
 } from "@/lib/navigation";
 
 interface MobileNavigationProps {
@@ -122,24 +120,9 @@ export function MobileNavigation({ onClose }: MobileNavigationProps) {
             if (link.label === "Patient Resources") {
               return (
                 <div key={link.href} className="mobile-nav-section">
-                  <button
-                    className="mobile-nav-trigger"
-                    aria-expanded={isSectionOpen("patient-resources")}
-                    aria-controls="mobile-patient-resources"
-                    onClick={() => toggleSection("patient-resources")}
-                  >
-                    Patient Resources
-                    <span className="mobile-nav-chevron" aria-hidden="true">
-                      {isSectionOpen("patient-resources") ? "▲" : "▼"}
-                    </span>
-                  </button>
-                  {isSectionOpen("patient-resources") ? (
-                    <ul id="mobile-patient-resources" className="mobile-nav-sub">
-                      {patientResourceSections.map(item => (
-                        <li key={item.href}><Link href={item.href} className="mobile-nav-link">{item.label}</Link></li>
-                      ))}
-                    </ul>
-                  ) : null}
+                  <Link href={link.href} className="mobile-nav-link" onClick={onClose}>
+                    {link.label}
+                  </Link>
                 </div>
               );
             }
@@ -159,7 +142,7 @@ export function MobileNavigation({ onClose }: MobileNavigationProps) {
         </nav>
 
         <div className="mobile-nav-cta">
-          <Link href="/book-appointment" className="cd-button cd-button-primary" onClick={onClose}>Book an Appointment <span aria-hidden="true">↗</span></Link>
+          <Link href="/book-appointment" className="cd-button cd-button-primary" onClick={onClose}>Book Appointment <span aria-hidden="true">↗</span></Link>
         </div>
       </div>
     </div>

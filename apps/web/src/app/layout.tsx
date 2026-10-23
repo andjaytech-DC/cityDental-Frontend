@@ -17,8 +17,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "CityDental | A thoughtful beginning",
-  description: "Explore CityDental patient resources, doctor information and appointment workspaces. Clinic service information is awaiting publication.",
+  title: "CityDental | Healthy smiles for a brighter life",
+  description: "Patient-focused dental care in Etah. Explore oral surgery, implants and specialty services, meet Dr. Kamlesh Kumar Yadav, and request an appointment with CityDental.",
   applicationName: SITE_NAME,
   robots: { index: true, follow: true },
   openGraph: {
@@ -26,14 +26,14 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     locale: "en_IN",
     url: absoluteUrl("/"),
-    title: "CityDental | A thoughtful beginning",
-    description: "Patient resources, doctor information and appointment workspaces for CityDental in Etah.",
+    title: "CityDental | Healthy smiles for a brighter life",
+    description: "Patient-focused dental care in Etah, with clear service information, a verified doctor profile and appointment requests.",
     images: [SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CityDental | A thoughtful beginning",
-    description: "Patient resources, doctor information and appointment workspaces for CityDental in Etah.",
+    title: "CityDental | Healthy smiles for a brighter life",
+    description: "Patient-focused dental care in Etah, with clear service information, a verified doctor profile and appointment requests.",
     images: [SHARE_IMAGE.url],
   },
   icons: {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#235c55",
+  themeColor: "#153F38",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,

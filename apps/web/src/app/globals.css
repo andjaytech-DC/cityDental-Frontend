@@ -3,22 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #235c55;
-  --color-primary-light: #39746a;
-  --color-primary-dark: #173f3a;
-  --color-accent: #846743;
-  --color-surface-muted: #eeeae1;
-  --color-secondary: #dce7df;
-  --color-on-primary: #fffdf7;
+  --color-primary: #153f38;
+  --color-primary-light: #2b5a50;
+  --color-primary-dark: #0e2e29;
+  --color-accent: #ffc700;
+  --color-accent-strong: #e8b400;
+  --color-accent-ink: #7a5a00;
+  --color-accent-soft: #fff4c7;
+  --color-on-accent: #153f38;
+  --color-surface-muted: #f1eee4;
+  --color-secondary: #eef2ea;
+  --color-on-primary: #ffffff;
   --font-display: Georgia, 'Times New Roman', serif;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  --color-background: #f8f6f0;
-  --color-surface: #fffefa;
-  --color-text-primary: #243e3a;
-  --color-text-secondary: #5d6862;
-  --color-border: #d8dcd2;
+  --color-background: #f8f6ef;
+  --color-surface: #ffffff;
+  --color-text-primary: #183a35;
+  --color-text-secondary: #52635d;
+  --color-border: #dde3dd;
 
   --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
@@ -48,13 +52,14 @@ body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   line-height: 1.6;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
   background-color: var(--color-accent);
-  color: white;
+  color: var(--color-primary-dark);
 }
 
 ::-webkit-scrollbar {

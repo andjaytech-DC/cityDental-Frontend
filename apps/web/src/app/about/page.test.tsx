@@ -9,11 +9,12 @@ import WhatToExpectPage from "@/app/patient-resources/what-to-expect/page";
 import FAQsPage from "@/app/patient-resources/faqs/page";
 
 describe("navigation data", () => {
-  it("defines main navigation links including About and Contact", () => {
+  it("defines main navigation links including About, Careers and Contact", () => {
     const labels = mainNavLinks.map(l => l.label);
     expect(labels).toContain("About");
+    expect(labels).toContain("Careers");
     expect(labels).toContain("Contact");
-    expect(labels).toContain("Patient Resources");
+    expect(labels).not.toContain("Patient Resources");
   });
 
   it("has 3 service categories", () => {

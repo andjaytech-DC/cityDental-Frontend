@@ -189,7 +189,7 @@ Targets (mobile): **LCP < 2.5 s**, **CLS < 0.1**, **INP < 200 ms**.
 
 Run after every deploy:
 
-**Build note:** `apps/web/package.json` has `predev` and `prebuild` steps that compile `packages/types` and `packages/validation` before Next.js starts. Keep them. Without them, deployments that build only `apps/web` fail with `Can't resolve '@citydental/validation'` because the workspace `dist` folders are gitignored.
+**Build note:** `apps/web/package.json` compiles `packages/types` and `packages/validation` directly inside its `dev` and `build` scripts before starting Next.js. Keep this. Without it, deployments that build only `apps/web` fail with `Can't resolve '@citydental/validation'` because the workspace `dist` folders are gitignored. Do not move this back to `prebuild` hooks; the deployment environment did not execute them.
 
 ```powershell
 $base = "https://<your-domain>"

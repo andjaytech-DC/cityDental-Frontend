@@ -16,7 +16,7 @@ export default function PatientResourcesPage() {
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Patient Resources" }]} />
       </div>
       <section className="premium-section premium-wrap" aria-labelledby="resources-title">
-        <div className="cd-page-heading"><h1>Patient Resources</h1><p>Helpful information and resources to make your visit to CityDental as smooth as possible.</p></div>
+        <div className="cd-page-heading" id="resources-title"><h1>Patient Resources</h1><p>Helpful information and resources to make your visit to CityDental as smooth as possible.</p></div>
         <div className="resource-grid">
           <Link href="/patient-resources/new-patients" className="resource-card">
             <h3>New Patients</h3>
@@ -44,7 +44,7 @@ export default function PatientResourcesPage() {
         </div>
         <div className="cd-related">
           <Link href="/services">Explore our services</Link>
-          <Link href="/doctors">Meet our doctors</Link>
+          <Link href="/doctors">Meet our doctor</Link>
           <Link href="/book-appointment">Book an appointment</Link>
           <Link href="/contact">Contact CityDental</Link>
         </div>

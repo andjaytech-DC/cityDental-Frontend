@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 export function Brand() {
-  return <Link href="/" className="premium-brand" aria-label="CityDental home"><span aria-hidden="true" className="brand-mark">C<span>✦</span></span><span>CityDental<small>A little more considered.</small></span></Link>;
+  return <Link href="/" className="premium-brand" aria-label="CityDental home"><span aria-hidden="true" className="brand-mark">C<span>✦</span></span><span>CityDental<small>A complete dental care</small></span></Link>;
 }
 
 export function PublicHeader({ account }: { account: ReactNode }) {

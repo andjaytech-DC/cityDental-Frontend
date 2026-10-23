@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CityDental — thoughtful dental care in Etah",
+    name: "CityDental — healthy smiles for a brighter life",
     short_name: "CityDental",
-    description: "Patient information, services, doctor directory and appointment booking for CityDental in Etah.",
+    description: "Patient information, services, verified doctor details and appointment requests for CityDental in Etah.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f8f6f0",
-    theme_color: "#235c55",
+    background_color: "#F8F6EF",
+    theme_color: "#153F38",
     icons: [
       {
         src: "/icon.svg",

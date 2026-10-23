@@ -93,9 +93,8 @@ export interface NavSection {
 export const mainNavLinks: NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/doctors", label: "Doctors" },
   { href: "/services", label: "Services" },
-  { href: "/patient-resources", label: "Patient Resources" },
+  { href: "/doctors", label: "Doctors" },
   { href: "/careers", label: "Careers" },
   { href: "/contact", label: "Contact" },
 ];
@@ -117,11 +116,11 @@ export const footerLinks = {
   quick: [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
-    { href: "/doctors", label: "Doctors" },
     { href: "/services", label: "Services" },
-    { href: "/patient-resources", label: "Patient Resources" },
+    { href: "/doctors", label: "Doctors" },
     { href: "/careers", label: "Careers" },
     { href: "/contact", label: "Contact" },
+    { href: "/patient-resources", label: "Patient Resources" },
   ],
   services: serviceCategories.map(c => ({ href: c.href, label: c.name })),
   care: [

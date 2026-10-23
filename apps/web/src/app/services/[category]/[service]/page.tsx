@@ -82,7 +82,7 @@ export default function ServicePage({ params }: { params: { category: string; se
           {relatedServices.map(item => (
             <Link key={item.slug} href={`/services/${category.slug}/${item.slug}`}>{item.name}</Link>
           ))}
-          <Link href="/doctors">Meet our doctors</Link>
+          <Link href="/doctors">Meet our doctor</Link>
           <Link href="/patient-resources">Patient resources</Link>
           <Link href="/book-appointment">Book an appointment</Link>
         </div>

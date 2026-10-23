@@ -1,20 +1,22 @@
 import Link from "next/link";
-import { serviceCategories, footerLinks, doctorProfile } from "@/lib/navigation";
+import { footerLinks, doctorProfile } from "@/lib/navigation";
 import { CookiePreferences } from "@/components/CookiePreferences";
+import { MailIcon, PhoneIcon, PinIcon } from "@/components/icons";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
+  const contact = doctorProfile.contact;
 
   return (
-    <footer className="premium-footer" id="contact" role="contentinfo">
+    <footer className="premium-footer" role="contentinfo">
       <div className="premium-wrap footer-grid">
         <div className="footer-brand">
           <Link href="/" className="premium-brand" aria-label="CityDental home">
             <span aria-hidden="true" className="brand-mark">C<span>✦</span></span>
-            <span>CityDental<small>A little more considered.</small></span>
+            <span>CityDental<small>A complete dental care</small></span>
           </Link>
-          <p>Thoughtful dental care with a patient-first approach.</p>
-          <Link href="/book-appointment" className="footer-cta">Book an Appointment <span aria-hidden="true">↗</span></Link>
+          <p>Patient-focused dental care in Etah, with clear information and a thoughtful next step.</p>
+          <Link href="/book-appointment" className="footer-cta">Book Appointment <span aria-hidden="true">↗</span></Link>
         </div>
 
         <nav aria-label="Quick links">
@@ -32,59 +34,29 @@ export function SiteFooter() {
             {footerLinks.services.map(item => (
               <li key={item.href}><Link href={item.href}>{item.label}</Link></li>
             ))}
+            <li><Link href="/services">View all services</Link></li>
           </ul>
         </nav>
 
-        <nav aria-label="Patient care">
-          <h2>Patient Care</h2>
-          <ul className="footer-list">
-            {footerLinks.care.map(item => (
-              <li key={item.href}><Link href={item.href}>{item.label}</Link></li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-
-      <section className="premium-cta footer-cta-strip">
-        <div className="premium-wrap">
-          <div>
-            <p className="eyebrow">A more comfortable next step</p>
-            <h2>Ready to take the next step toward your oral health?</h2>
-            <p>Your appointment request has not been submitted yet. Online booking will be connected to CityDental when the appointment service is available.</p>
-          </div>
-          <Link href="/book-appointment" className="cd-button cd-button-primary">Book an Appointment <span aria-hidden="true">↗</span></Link>
-        </div>
-      </section>
-
-      <div className="footer-contact">
-        <div className="premium-wrap">
-          <div className="contact-brand">
-            <h2>{doctorProfile.brand}</h2>
-            <address>{doctorProfile.fullName.replace("Dr. ", "")}<br />Shop No. 5, Yadav Market,<br />MG Road, Etah, 701012</address>
-          </div>
-          <div className="contact-actions">
-            <a href="tel:+919415192948" className="contact-link">
-              <span className="contact-label">Call</span>
-              <span className="contact-value">+91 94151 92948</span>
+        <div className="footer-contact-block" role="group" aria-label="Contact details">
+          <h2>Contact Us</h2>
+          <address>
+            <span><PinIcon width={16} height={16} /> {contact.address}</span>
+            <a href="tel:+919415192948"><PhoneIcon width={16} height={16} /> {contact.phone}</a>
+            <a href="https://wa.me/919415192948" target="_blank" rel="noopener noreferrer">
+              WhatsApp: {contact.whatsapp}
             </a>
-            <a href="https://wa.me/919415192948" className="contact-link" target="_blank" rel="noopener noreferrer">
-              <span className="contact-label">WhatsApp</span>
-              <span className="contact-value">+91 94151 92948</span>
-            </a>
-            <a href="mailto:citydentalEtah@gmail.com" className="contact-link">
-              <span className="contact-label">Email</span>
-              <span className="contact-value">citydentalEtah@gmail.com</span>
-            </a>
-          </div>
+            <a href={`mailto:${contact.email}`}><MailIcon width={16} height={16} /> {contact.email}</a>
+          </address>
         </div>
       </div>
 
       <div className="premium-wrap footer-bottom">
+        <span>© {year} CityDental. All rights reserved.</span>
         <div className="cd-footer-meta">
-          <span>© {year} CityDental. All rights reserved.</span>
           <CookiePreferences />
         </div>
-        <span>Clinic information pending publication · No clinical records shown</span>
+        <span>Illustrative photography · No clinical records shown</span>
       </div>
     </footer>
   );

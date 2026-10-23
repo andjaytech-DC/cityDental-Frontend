@@ -40,7 +40,7 @@ export function AppShell({ children, account }: { children: ReactNode; account?:
     return () => media.removeEventListener("change", closeOnDesktop);
   }, []);
   const accountControl = account ?? <Link href="/login" className="cd-button cd-button-ghost">Sign in</Link>;
-  const isPublic = pathname === "/" || pathname.startsWith("/book-appointment") || pathname.startsWith("/services") || pathname.startsWith("/doctors") || pathname.startsWith("/about") || pathname.startsWith("/patient-resources") || pathname === "/contact";
+  const isPublic = pathname === "/" || pathname.startsWith("/book-appointment") || pathname.startsWith("/appointments/book") || pathname.startsWith("/services") || pathname.startsWith("/doctors") || pathname.startsWith("/about") || pathname.startsWith("/patient-resources") || pathname.startsWith("/careers") || pathname === "/contact";
   if (isPublic) return <div className="premium-site">
     <a className="cd-skip" href="#main-content">Skip to content</a>
     <SiteHeader account={accountControl} />

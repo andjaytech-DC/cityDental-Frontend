@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Badge } from "@/components/ui";
-import { serviceCategories, mainNavLinks, aboutSections, patientResourceSections, doctorProfile } from "@/lib/navigation";
+import { mainNavLinks, aboutSections } from "@/lib/navigation";
 import { ServicesMegaMenu } from "./ServicesMegaMenu";
 import { MobileNavigation } from "./MobileNavigation";
 
@@ -50,7 +49,7 @@ export function SiteHeader({ account }: { account?: ReactNode }) {
       <div className="premium-header-inner">
         <Link href="/" className="premium-brand" aria-label="CityDental home">
           <span aria-hidden="true" className="brand-mark">C<span>✦</span></span>
-          <span>CityDental<small>A little more considered.</small></span>
+          <span>CityDental<small>A complete dental care</small></span>
         </Link>
 
         <nav aria-label="Main navigation" className="premium-nav">
@@ -58,13 +57,12 @@ export function SiteHeader({ account }: { account?: ReactNode }) {
             <NavItem key={link.href} link={link} isActive={isActive(link.href)}>
               {link.label === "Services" ? <ServicesMegaMenu /> : null}
               {link.label === "About" ? <AboutDropdown /> : null}
-              {link.label === "Patient Resources" ? <PatientResourcesDropdown /> : null}
             </NavItem>
           ))}
         </nav>
 
         <div className="premium-header-actions">
-          {account}
+          <div className="premium-account">{account}</div>
           <Link href="/book-appointment" className="cd-button cd-button-primary">Book Appointment <span aria-hidden="true">↗</span></Link>
           <button
             className="cd-button cd-button-ghost premium-menu"
@@ -110,7 +108,7 @@ function NavItem({ link, isActive, children }: { link: { href: string; label: st
     >
       <Link
         href={link.href}
-        className={isActive ? "cd-button cd-button-secondary" : "cd-button cd-button-ghost"}
+        className={`premium-nav-link${isActive ? " is-active" : ""}`}
         aria-current={isActive ? "page" : undefined}
         aria-haspopup={children ? "true" : undefined}
         aria-expanded={children ? open : undefined}
@@ -128,20 +126,6 @@ function AboutDropdown() {
       <div className="nav-dropdown-inner">
         <div className="nav-dropdown-column">
           {aboutSections.map(item => (
-            <Link key={item.href} href={item.href} className="nav-dropdown-link">{item.label}</Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PatientResourcesDropdown() {
-  return (
-    <div className="nav-dropdown">
-      <div className="nav-dropdown-inner">
-        <div className="nav-dropdown-column">
-          {patientResourceSections.map(item => (
             <Link key={item.href} href={item.href} className="nav-dropdown-link">{item.label}</Link>
           ))}
         </div>

@@ -40,7 +40,7 @@ export default function DoctorPage({ params }: { params: { slug: string } }) {
         <div className="doctor-hero-layout">
           <div className="doctor-visual">
             <div className="doctor-placeholder" role="img" aria-label={`Portrait placeholder for ${d.fullName}`}>
-              <span className="doctor-placeholder-initials">CK</span>
+              <span className="doctor-placeholder-initials">KK</span>
               <div className="doctor-placeholder-accent" />
             </div>
           </div>

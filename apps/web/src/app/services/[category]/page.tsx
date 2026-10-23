@@ -57,7 +57,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
           {relatedCategories.map(item => (
             <Link key={item.slug} href={`/services/${item.slug}`}>{item.name}</Link>
           ))}
-          <Link href="/doctors">Meet our doctors</Link>
+          <Link href="/doctors">Meet our doctor</Link>
           <Link href="/book-appointment">Book an appointment</Link>
         </div>
       </section>

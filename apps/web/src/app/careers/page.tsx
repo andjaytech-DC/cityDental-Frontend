@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CareersForm } from "@/components/CareersForm";
 import { SectionHeading } from "@/components/MarketingSections";
+import { ArrowUpRightIcon } from "@/components/icons";
 import { doctorProfile } from "@/lib/navigation";
+import { siteImages } from "@/lib/site-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -47,16 +50,26 @@ export default function CareersPage() {
       </div>
 
       <section className="about-hero premium-section premium-wrap" aria-labelledby="careers-title">
-        <p className="eyebrow"><span className="eyebrow-line" /> Careers</p>
-        <h1 id="careers-title">Build Your Career <br /><em>with City Dental</em></h1>
-        <p className="about-description">
-          City Dental welcomes dedicated, responsible and patient-focused professionals who want to contribute to a
-          friendly, organized and professional dental care environment. Explore our current opportunities and apply to
-          join our team.
-        </p>
-        <div className="hero-actions">
-          <a href="#openings" className="cd-button cd-button-primary">Explore opportunities <span aria-hidden="true">↗</span></a>
-          <a href="#apply" className="text-link">Apply now</a>
+        <div className="careers-hero-grid">
+          <div className="careers-hero-copy">
+            <p className="eyebrow"><span className="eyebrow-line" /> Careers</p>
+            <h1 id="careers-title">Build Your Career <br /><em>with City Dental</em></h1>
+            <p className="about-description">
+              City Dental welcomes dedicated, responsible and patient-focused professionals who want to contribute to a
+              friendly, organised and professional dental care environment. Explore our current opportunities and apply to
+              join our team.
+            </p>
+            <div className="hero-actions">
+              <a href="#openings" className="cd-button cd-button-primary">Explore opportunities <ArrowUpRightIcon width={17} height={17} /></a>
+              <a href="#apply" className="text-link">Apply now</a>
+            </div>
+          </div>
+          <figure className="careers-hero-visual">
+            <div className="careers-hero-photo">
+              <Image src={siteImages.careers.src} alt={siteImages.careers.alt} fill loading="lazy" sizes="(max-width: 900px) 92vw, 46vw" />
+            </div>
+            <figcaption>{siteImages.careers.caption}</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -70,7 +83,7 @@ export default function CareersPage() {
           </p>
         </div>
 
-        <SectionHeading eyebrow="Opportunities" title="Where you could join us">
+        <SectionHeading id="openings-title" eyebrow="Opportunities" title="Where you could join us">
           <p>
             We are gathering interest across three areas of the practice. Select the position that best matches your
             background in the application form below.
@@ -94,7 +107,7 @@ export default function CareersPage() {
       </section>
 
       <section className="premium-section premium-wrap" aria-labelledby="environment-title">
-        <SectionHeading eyebrow="Working here" title="A friendly, organised place to care">
+        <SectionHeading id="environment-title" eyebrow="Working here" title="A friendly, organised place to care">
           <p>
             City Dental looks for people who bring care, responsibility and clear communication to their work. The
             practice aims to maintain a calm and professional environment where patients and colleagues are treated
@@ -173,7 +186,7 @@ export default function CareersPage() {
         </div>
         <div className="cd-related">
           <Link href="/about">About City Dental <span aria-hidden="true">→</span></Link>
-          <Link href="/doctors">Meet our doctors <span aria-hidden="true">→</span></Link>
+          <Link href="/doctors">Meet our doctor <span aria-hidden="true">→</span></Link>
           <Link href="/contact">Contact the clinic <span aria-hidden="true">→</span></Link>
         </div>
       </section>

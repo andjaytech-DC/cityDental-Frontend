@@ -11,23 +11,33 @@ describe("frontend foundation", () => {
     expect(html).toContain("Patients");
   });
 
-  it("renders the original public homepage with honest service and team availability", () => {
+  it("renders the redesigned public homepage with verified service and team information", () => {
     const html = renderToStaticMarkup(<HomePage />);
     expect(html).toContain('id="hero-title"');
-    expect(html).toContain("A fresh perspective");
+    expect(html).toContain("Healthy smiles");
+    expect(html).toContain("brighter life");
     expect(html).toContain('href="/book-appointment"');
     expect(html).toContain('href="/services"');
-    expect(html).toContain('src="/images/care-space.svg"');
-    expect(html).toContain("not a photograph of our clinic");
+    expect(html).toContain("clinic-hero.jpg");
+    expect(html).toContain("Illustrative stock photography");
     expect(html).toContain("Dr. Kamlesh Kumar Yadav");
     expect(html).toContain("CityDental");
     expect(html).toContain('href="/doctors/dr-kamlesh-kumar-yadav"');
+    expect(html).toContain('href="/careers"');
+    expect(html).toContain("Patient-first care");
+    expect(html).toContain("Honest information");
     expect(html).not.toContain("No doctor records loaded");
     expect(html).not.toContain("Team profiles are on their way");
     expect(html).not.toContain("Patient successfully created");
+    expect(html).not.toContain("General Dentistry");
+    expect(html).not.toContain("Cosmetic Dentistry");
+    expect(html).not.toContain("Orthodontics");
     expect(html).toContain("oral-surgery");
     expect(html).toContain("implants-bone-grafting");
     expect(html).toContain("specialty-services");
+    expect(html).toContain("Wisdom Teeth Removal");
+    expect(html).toContain("Dental Implants");
+    expect(html).toContain("TMJ Therapy");
   });
 
   it("reuses the staged appointment presentation while preserving supplied time offsets", () => {

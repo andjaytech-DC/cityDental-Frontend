@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
-    "predev": "tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json",
-    "prebuild": "tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json",
-    "build": "next build",
+    "dev": "tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json && next dev --port 3000",
+    "build": "tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --runInBand",

@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { serviceCategories } from "@/lib/navigation";
+import { serviceCategories, mainNavLinks } from "@/lib/navigation";
 import { SiteHeader } from "@/components/navigation/SiteHeader";
 import { MobileNavigation } from "@/components/navigation/MobileNavigation";
 import { SiteFooter } from "@/components/footer/SiteFooter";
@@ -10,14 +10,26 @@ describe("SiteHeader", () => {
     expect(html).toContain("CityDental");
   });
 
+  it("uses the approved primary navigation order", () => {
+    expect(mainNavLinks.map(link => link.label)).toEqual([
+      "Home",
+      "About",
+      "Services",
+      "Doctors",
+      "Careers",
+      "Contact",
+    ]);
+  });
+
   it("renders all main navigation links", () => {
     const html = renderToStaticMarkup(<SiteHeader account={<span>Account</span>} />);
     expect(html).toContain("Home");
     expect(html).toContain("About");
     expect(html).toContain("Doctors");
     expect(html).toContain("Services");
-    expect(html).toContain("Patient Resources");
+    expect(html).toContain("Careers");
     expect(html).toContain("Contact");
+    expect(html).not.toContain("Patient Resources");
   });
 
   it("renders the book appointment button", () => {
@@ -55,7 +67,7 @@ describe("MobileNavigation", () => {
     expect(html).toContain("About");
     expect(html).toContain("Doctors");
     expect(html).toContain("Services");
-    expect(html).toContain("Patient Resources");
+    expect(html).toContain("Careers");
     expect(html).toContain("Contact");
   });
 
@@ -71,7 +83,7 @@ describe("MobileNavigation", () => {
 
   it("renders the book appointment CTA", () => {
     const html = renderToStaticMarkup(<MobileNavigation onClose={() => undefined} />);
-    expect(html).toContain("Book an Appointment");
+    expect(html).toContain("Book Appointment");
   });
 });
 

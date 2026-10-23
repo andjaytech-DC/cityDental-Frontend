@@ -135,3 +135,4 @@ These require credentials, accounts, DNS or hosting access:
 | 2026-10-23 | Removed `noindex` from the public booking alias; added unique admin titles; allowed OAI-SearchBot/ChatGPT-User/GPTBot; added `upgrade-insecure-requests`; created `PROD.md`, `DESIGN.md`, `TASK.md`. |
 | 2026-10-23 | Added `/careers` with hiring-interest categories, validated application form, honest delivery states, navigation/footer links, sitemap entry, tests and backend integration notes. No backend files changed. |
 | 2026-10-23 | Fixed deployment resolution of `@citydental/validation` by compiling `packages/types` and `packages/validation` in `apps/web` `predev`/`prebuild`; reproduced the missing-`dist` failure and rebuilt successfully. |
+| 2026-10-23 | Moved shared-package compilation into the `dev`/`build` scripts themselves because Vercel did not execute the `prebuild` hook. |
