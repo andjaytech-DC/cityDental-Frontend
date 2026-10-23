@@ -88,9 +88,9 @@ cd apps\web
 cd ..\..
 node scripts\audit-bff.mjs --check --no-write
 
-# Production build (from apps/web)
+# Production build (from apps/web) — runs `prisma generate` first, then Next
 cd apps\web
-.\node_modules\.bin\next.cmd build
+corepack pnpm run build
 ```
 
 Latest results:
@@ -136,3 +136,5 @@ These require credentials, accounts, DNS or hosting access:
 | 2026-10-23 | Added `/careers` with hiring-interest categories, validated application form, honest delivery states, navigation/footer links, sitemap entry, tests and backend integration notes. No backend files changed. |
 | 2026-10-23 | Fixed deployment resolution of `@citydental/validation` by compiling `packages/types` and `packages/validation` in `apps/web` `predev`/`prebuild`; reproduced the missing-`dist` failure and rebuilt successfully. |
 | 2026-10-23 | Moved shared-package compilation into the `dev`/`build` scripts themselves because Vercel did not execute the `prebuild` hook. |
+| 2026-10-24 | Declared `AuditAction` locally in `apps/web/src/lib/audit.ts` instead of importing it from `@prisma/client`, which resolves to the ungenerated stub when a deployment builds only `apps/web`. |
+| 2026-10-24 | Added `scripts/generate-prisma-client.mjs` and wired it into `apps/web` `dev`/`build` so `prisma generate` runs before `next build`. No database changes or migrations; `prisma generate` does not connect. Documented the build-time `DATABASE_URL` requirement in `PROD.md`. |

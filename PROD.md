@@ -189,7 +189,12 @@ Targets (mobile): **LCP < 2.5 s**, **CLS < 0.1**, **INP < 200 ms**.
 
 Run after every deploy:
 
-**Build note:** `apps/web/package.json` compiles `packages/types` and `packages/validation` directly inside its `dev` and `build` scripts before starting Next.js. Keep this. Without it, deployments that build only `apps/web` fail with `Can't resolve '@citydental/validation'` because the workspace `dist` folders are gitignored. Do not move this back to `prebuild` hooks; the deployment environment did not execute them.
+**Build note:** `apps/web/package.json` runs the following, inline, inside its `dev` and `build` scripts before starting Next.js. Keep this. Do not move any of it back to `prebuild` hooks; the deployment environment did not execute them.
+
+1. `scripts/generate-prisma-client.mjs` — runs `prisma generate` against `apps/api/prisma/schema.prisma`. Without it, a deployment that builds only `apps/web` ships the Prisma *stub* client, so types such as `AuditAction` are missing and `new PrismaClient()` throws at runtime. `prisma generate` never connects to the database and never runs migrations. On Windows the query-engine DLL can be locked by a running dev server; the script continues only when an already-generated client provably contains our schema's types, so a genuine generation failure still fails the build.
+2. Compiles `packages/types` and `packages/validation`. Without this, deployments fail with `Can't resolve '@citydental/validation'` because the workspace `dist` folders are gitignored.
+
+**Build-time database requirement:** `/api/locations` is prerendered as a static route and calls `prisma.location.findMany()` during `next build`, so the build itself needs `DATABASE_URL` to be set **and** reachable from the build environment. Set it in the deployment environment's variables — the repo's `.env` is gitignored and is not present on Vercel. If the database is only reachable from your machine, that build fails with `Environment variable not found: DATABASE_URL` or a connection error.
 
 ```powershell
 $base = "https://<your-domain>"

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json && next dev --port 3000",
-    "build": "tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json && next build",
+    "dev": "node ../../scripts/generate-prisma-client.mjs && tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json && next dev --port 3000",
+    "build": "node ../../scripts/generate-prisma-client.mjs && tsc -p ../../packages/types/tsconfig.json && tsc -p ../../packages/validation/tsconfig.json && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest --runInBand",
