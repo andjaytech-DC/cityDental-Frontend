@@ -15,6 +15,8 @@ These are not SEO items, but the site should not be announced publicly until the
 | Gate | Current state | Owner action |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Defaults to `http://localhost:3000` | Set the real HTTPS origin and rebuild |
+| Production `DATABASE_URL` | Not listed in section 2 below; `.env` is gitignored | Set it in the deployment environment — `/api/doctors` and `/api/locations` query at request time |
+| Doctor seed data | `pnpm db:seed` (see `apps/api/prisma/seed.ts`) creates no doctors, so a migrated + seeded database still shows **"No doctors available — No active doctors found"** in the booking wizard | Run `pnpm db:migrate` then `pnpm db:seed:doctors` against the production `DATABASE_URL` (see section 2) |
 | Contact email delivery | `POST /api/contact` returns `503 NOT_CONFIGURED` without SMTP | Set `COMMUNICATIONS_ENABLED=true`, `SMTP_HOST`, `SMTP_FROM`, `CONTACT_TO_EMAIL` |
 | Real payment provider | Razorpay order/verify are placeholders | Implement/verify before enabling online payments |
 | Logout token revocation | Cookies cleared, `tokenVersion` not incremented | Fix before exposing admin sessions |
@@ -54,6 +56,10 @@ NEXT_PUBLIC_SITE_URL=https://<your-domain>
 NEXT_PUBLIC_API_URL=https://<api-domain>/api/v1
 CORS_ORIGIN=https://<your-domain>
 
+# Database (server-side only — never exposed to the browser)
+# Required at request time by /api/doctors and /api/locations; not needed during next build.
+DATABASE_URL=postgresql://<user>:<password>@<host>:5432/<database>?schema=public
+
 # Contact form
 CONTACT_TO_EMAIL=citydentalEtah@gmail.com
 COMMUNICATIONS_ENABLED=true
@@ -70,6 +76,30 @@ NEXT_PUBLIC_ANALYTICS_DOMAIN=<your-domain>  # for plausible
 ```
 
 Build after changing `NEXT_PUBLIC_*` values — they are inlined at build time.
+
+### Database: migrate and seed
+
+The database is never touched by `next build`. Run migrations and seed data once per environment, with that environment's `DATABASE_URL`:
+
+```powershell
+# production / hosted database (Vercel env, Neon, RDS, ...)
+$env:DATABASE_URL = "postgresql://<user>:<password>@<host>:5432/<database>?schema=public"
+pnpm db:migrate                 # prisma migrate deploy
+node scripts/seed-doctors.mjs   # the five doctors + specialties + clinic locations (alias: pnpm db:seed:doctors)
+```
+
+`pnpm db:seed` runs `apps/api/prisma/seed.ts` **and** the doctor seed above. `seed.ts` alone is not enough: it deliberately creates only the organization, one location, permissions, roles and the admin user — **no doctors**. On a database seeded that way the booking wizard shows *"No doctors available — No active doctors found. Please contact clinic."* even though the application and the database are both healthy.
+
+`scripts/seed-doctors.mjs` is idempotent and non-destructive — it upserts the organization/locations and matches doctors by `(organizationId, email)`, so it can be re-run safely against an existing production database. Do **not** run `apps/api/prisma/seed-realistic.ts` against production: it `deleteMany`s every doctor, patient, appointment and audit row first.
+
+> `scripts/seed-doctors.mjs` is a plain Node script, so it needs no `pnpm` on `PATH`. The `pnpm db:*` aliases require pnpm itself to be resolvable — if `pnpm: The term is not recognized` appears, run `corepack enable` once (the repository pins `packageManager: pnpm@9.15.0`).
+
+Verify:
+
+```powershell
+Invoke-WebRequest "https://<your-domain>/api/doctors?status=ACTIVE" -UseBasicParsing
+# expect {"items":[ ...5 doctors... ]} with HTTP 200
+```
 
 ---
 
@@ -194,7 +224,9 @@ Run after every deploy:
 1. `scripts/generate-prisma-client.mjs` — runs `prisma generate` against `apps/api/prisma/schema.prisma`. Without it, a deployment that builds only `apps/web` ships the Prisma *stub* client, so types such as `AuditAction` are missing and `new PrismaClient()` throws at runtime. `prisma generate` never connects to the database and never runs migrations. On Windows the query-engine DLL can be locked by a running dev server; the script continues only when an already-generated client provably contains our schema's types, so a genuine generation failure still fails the build.
 2. Compiles `packages/types` and `packages/validation`. Without this, deployments fail with `Can't resolve '@citydental/validation'` because the workspace `dist` folders are gitignored.
 
-**Runtime database requirement:** `/api/locations` declares `export const dynamic = "force-dynamic"`, so it is evaluated per request and is **not** prerendered during `next build`. The build therefore needs no database access, and a build-time failure such as `Environment variable not found: DATABASE_URL` means something regressed - check that the route still exports `dynamic = "force-dynamic"`. `DATABASE_URL` must still be set in the deployment environment's variables, because the route queries at request time; the repo's `.env` is gitignored and is not present on Vercel.
+**Runtime database requirement:** `/api/locations` and `/api/doctors` both declare `export const dynamic = "force-dynamic"`, so they are evaluated per request and are **not** prerendered during `next build` (confirmed by `apps/web/.next/prerender-manifest.json`, which contains neither route). The build therefore needs no database access, and a build-time failure such as `Environment variable not found: DATABASE_URL` means something regressed - check that both routes still export `dynamic = "force-dynamic"`. `DATABASE_URL` must still be set in the deployment environment's variables, because the routes query at request time; the repo's `.env` is gitignored and is not present on Vercel.
+
+**Where `DATABASE_URL` is read:** Next.js loads `.env` only from the Next project root (`apps/web`), while the repository's `.env` lives two directories above, so a bare `next dev`/`next start` never saw the variable — every database route failed with `Environment variable not found: DATABASE_URL` and the booking wizard rendered *"No active doctors found."* even with a fully populated database. `apps/web/src/lib/db.ts` now falls back to the workspace-root `.env` (located via `pnpm-workspace.yaml`); a value already present in the environment always wins, `NEXT_PUBLIC_*` is never read from there, and the module is `server-only` so nothing can reach the browser. If the variable is missing everywhere the client logs `[db] DATABASE_URL is not set ...` once at startup — check the server log before assuming the database is empty.
 
 ```powershell
 $base = "https://<your-domain>"

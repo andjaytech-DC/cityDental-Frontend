@@ -99,7 +99,7 @@ Latest results:
 | --- | --- |
 | TypeScript | Pass — 0 errors |
 | ESLint | Pass — no warnings or errors |
-| Jest | Pass — 15 suites / 227 tests |
+| Jest | Pass — 16 suites / 232 tests |
 | BFF audit | Pass — no hard boundary violations |
 | Production build | Pass — `/careers` prerendered as static; `/api/contact`, `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, `/favicon.ico` |
 | Runtime headers | Pass — CSP, HSTS, nosniff, frame deny, referrer, permissions, COOP; no `X-Powered-By` |
@@ -138,3 +138,5 @@ These require credentials, accounts, DNS or hosting access:
 | 2026-10-23 | Moved shared-package compilation into the `dev`/`build` scripts themselves because Vercel did not execute the `prebuild` hook. |
 | 2026-10-24 | Declared `AuditAction` locally in `apps/web/src/lib/audit.ts` instead of importing it from `@prisma/client`, which resolves to the ungenerated stub when a deployment builds only `apps/web`. |
 | 2026-10-24 | Added `scripts/generate-prisma-client.mjs` and wired it into `apps/web` `dev`/`build` so `prisma generate` runs before `next build`. No database changes or migrations; `prisma generate` does not connect. Documented the build-time `DATABASE_URL` requirement in `PROD.md`. |
+| 2026-10-26 | Root-caused "No doctors available / No active doctors found" in the booking wizard: `next dev`/`next start` only load `.env` from `apps/web` (which has none), so the server never received `DATABASE_URL` and `/api/doctors` answered `500 Environment variable not found: DATABASE_URL`, which the wizard's `.catch(() => {})` rendered as an empty clinic. Reproduced locally, fixed `apps/web/src/lib/db.ts` to fall back to the workspace-root `.env` (existing env always wins, `NEXT_PUBLIC_*` skipped, `server-only`), and made the wizard report load failures as "Unable to load doctors" with a retry instead of the empty state. Added `force-dynamic` to `/api/doctors` and a regression test. |
+| 2026-10-26 | Added `scripts/seed-doctors.mjs` (`pnpm db:seed:doctors`, also chained into `pnpm db:seed`): idempotent, non-destructive seed of the five `seed-realistic` doctors, their specialties and the three clinic locations, because `apps/api/prisma/seed.ts` creates no doctors at all — a correctly migrated and seeded database still showed an empty doctor list. Runs with plain `node`, accepts `DATABASE_URL` from the environment for hosted databases, and never deletes rows (unlike `seed-realistic.ts`). Documented migrate/seed and `DATABASE_URL` in `PROD.md` §2/§10. |
