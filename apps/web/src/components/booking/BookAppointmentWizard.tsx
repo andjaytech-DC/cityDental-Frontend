@@ -17,6 +17,8 @@ export function BookAppointmentWizard() {
   const [step, setStep] = useState<WizardStep>(1);
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [doctors, setDoctors] = useState<DoctorOption[]>([]);
+  const [doctorsFailed, setDoctorsFailed] = useState(false);
+  const [doctorsAttempt, setDoctorsAttempt] = useState(0);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -30,13 +32,28 @@ export function BookAppointmentWizard() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<CreatePatientInput>({ resolver: zodResolver(createPatientSchema) });
 
-  // Fetch doctors on step 2 and locations on step 3 for distinct steps
+  // Fetch doctors on step 2 and locations on step 3 for distinct steps.
+  // A failed doctors request must not masquerade as an empty clinic:
+  // previously `.catch(() => {})` swallowed HTTP/DB errors, so a broken
+  // DATABASE_URL rendered as "No active doctors found" with no way to tell
+  // the two apart.
   useEffect(() => {
     if (step === 2) {
-      fetch(`/api/doctors?status=ACTIVE`).then((r) => r.json()).then((d) => {
-        if (Array.isArray(d.items)) setDoctors(d.items);
-        else if (Array.isArray(d)) setDoctors(d);
-      }).catch(() => {});
+      setDoctorsFailed(false);
+      fetch(`/api/doctors?status=ACTIVE`)
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then((d) => {
+          if (Array.isArray(d.items)) setDoctors(d.items);
+          else if (Array.isArray(d)) setDoctors(d);
+          else throw new Error("unexpected payload");
+        })
+        .catch(() => {
+          setDoctors([]);
+          setDoctorsFailed(true);
+        });
     }
     if (step === 3) {
       fetch("/api/locations").then((r) => r.json()).then((d) => {
@@ -44,7 +61,7 @@ export function BookAppointmentWizard() {
         else if (Array.isArray(d)) setLocations(d);
       }).catch(() => {});
     }
-  }, [step]);
+  }, [step, doctorsAttempt]);
 
   useEffect(() => {
     if ((step === 4 || step === 5) && selectedDoctor && date) {
@@ -130,7 +147,13 @@ export function BookAppointmentWizard() {
         <div className="space-y-4">
           <h2 className="text-xl font-serif">Select Doctor</h2>
           <p className="cd-muted text-sm">Suggested based on {ageGroup} — active doctors.</p>
-          {doctors.length === 0 ? <EmptyState title="No doctors available" description="No active doctors found. Please contact clinic." /> : (
+          {doctorsFailed ? (
+            <EmptyState
+              title="Unable to load doctors"
+              description="The doctor list could not be loaded right now. Please try again, or contact the clinic if this continues."
+              action={<Button onClick={() => setDoctorsAttempt((n) => n + 1)}>Try again</Button>}
+            />
+          ) : doctors.length === 0 ? <EmptyState title="No doctors available" description="No active doctors found. Please contact clinic." /> : (
             <div className="grid gap-3">
               {doctors.map((d) => (
                 <button key={d.id} type="button" onClick={() => setSelectedDoctor(d.id)} className={`cd-card p-4 text-left flex justify-between items-center border-2 ${selectedDoctor === d.id ? "border-teal-700" : "border-transparent"}`}>
