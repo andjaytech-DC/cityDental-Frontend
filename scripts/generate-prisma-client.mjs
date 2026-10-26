@@ -65,7 +65,15 @@ if (result.status === 0) {
   process.exit(0);
 }
 
-if (generatedClientIsUsable()) {
+// The "usable client already exists" fallback exists only for Windows
+// development, where a running server can hold the query-engine DLL open and
+// make `prisma generate` exit non-zero after writing a complete client.
+// On CI/Vercel a failed generation must fail the build: continuing there would
+// type-check against whatever stale client happened to be in the cache, which is
+// exactly how `AuditAction` went missing on a deployment.
+const isCi = process.env.CI === "true" || process.env.CI === "1";
+
+if (!isCi && generatedClientIsUsable()) {
   console.warn("[prisma] generate did not complete, but a usable client is already generated; continuing.");
   if (stderr.trim()) console.warn(stderr.trimEnd());
   process.exit(0);

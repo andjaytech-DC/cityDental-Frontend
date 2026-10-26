@@ -1,21 +1,21 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import type { AuditAction } from "@prisma/client";
 
 /**
- * Mirrors `enum AuditAction` in apps/api/prisma/schema.prisma.
+ * `AuditAction` is `enum AuditAction` in apps/api/prisma/schema.prisma, surfaced
+ * through the generated Prisma Client. Importing it from `@prisma/client` keeps
+ * the allowed values tied to the database schema instead of a hand-copied union
+ * that can silently drift.
  *
- * Declared locally instead of imported from `@prisma/client` because the web app
- * does not run `prisma generate` on Vercel, so model and enum types are absent
- * from the generated client there. Keep both definitions in sync.
+ * This type only exists once the client has been generated. The web build must
+ * therefore run `prisma generate` before `next build` — see
+ * scripts/generate-prisma-client.mjs, which is inlined into the `build`/`dev`
+ * scripts because Vercel does not execute package.json lifecycle hooks. Without
+ * generation, `@prisma/client` resolves to its ungenerated stub
+ * (`export * from '.prisma/client/default'`) and this import fails to resolve.
  */
-export type AuditAction =
-  | "CREATE"
-  | "READ"
-  | "UPDATE"
-  | "DELETE"
-  | "LOGIN"
-  | "LOGOUT"
-  | "LOGIN_FAILED";
+export type { AuditAction };
 
 export async function writeAudit(params: {
   organizationId: string;
